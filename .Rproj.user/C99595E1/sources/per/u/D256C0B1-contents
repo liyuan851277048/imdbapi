@@ -1,0 +1,61 @@
+#E-step
+#starting value
+pi1 <- 0.5
+beta1 <- 1
+beta2 <- 1
+sigma1 <- 1
+sigma2 <- 1
+u <- rep(0:1,c(50,50))
+z <- rnorm(100)
+
+##gibbs
+F <- function(y,x,z,pi1,beta,sigma){
+  p <- 1/(1+exp(beta*x+z))
+  f <- p^y*(1-p)^y
+  return(f)
+}
+
+usave <- matrix(1:50000,nrow = 500)
+zsave <- matrix(1:50000,nrow = 500)
+for(i in 1:100){
+  
+  for(count in 1:500){
+    #renew u
+    usave[count,i] <- u[i]
+    utemp <- rbinom(1,1,pi1)
+    f1 <- prod(unlist(F(y[,i],x[,i],z[i],pi1,beta1,sigma1)))
+    if(utemp==0){
+      f2 <- prod(unlist(F(y[,i],x[,i],z[i],pi1,beta1,sigma1)))
+    }
+    else{
+      f2 <- prod(unlist(F(y[,i],x[,i],z[i],(1-pi1),beta2,sigma2)))
+    }
+    
+    A <- min(c(1,f2/f1))
+    
+    if(runif(1)<=A){
+      u[i] <- utemp
+    }
+    
+    #renew z
+    zsave[count,i] <- z[i]
+    if(u[i]==0){
+      ztemp <- rnorm(1,mean = 0,sd = sigma1)
+      f1 <- prod(unlist(F(y[,i],x[,i],z[i],pi1,beta1,sigma1)))
+      f2 <- prod(unlist(F(y[,i],x[,i],ztemp,pi1,beta1,sigma1)))
+    }
+    else{
+      ztemp <- rnorm(1,mean = 0,sd = sigma2)
+      f1 <- prod(unlist(F(y[,i],x[,i],z[i],(1-pi1),beta2,sigma2)))
+      f2 <- prod(unlist(F(y[,i],x[,i],ztemp,(1-pi1),beta2,sigma2)))
+    }
+    
+    A <- min(c(1,f2/f1))
+    
+    if(runif(1)<=A){
+      z[i] <- ztemp
+    }
+    
+  }
+  
+}

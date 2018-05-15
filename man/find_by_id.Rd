@@ -1,0 +1,30 @@
+\name{find_by_id}
+\alias{find_by_id}
+\title{Retrieve OMDB info by IMDB ID search}
+\usage{
+find_by_id(id, type = NULL, year_of_release = NULL, plot = "short",
+  include_tomatoes = FALSE, api_key = omdb_api_key())
+}
+\arguments{
+\item{id}{A valid IMDb ID (e.g. \code{tt1285016})}
+
+\item{type}{Type of result to return. One of \code{[movie|series|episode|game]}.}
+
+\item{year_of_release}{Year of release.}
+
+\item{plot}{Return \code{short} or \code{full} plot.}
+
+\item{include_tomatoes}{Include Rotten Tomatoes ratings.}
+
+\item{api_key}{OMDB API key. See \code{\link[=omdb_api_key]{omdb_api_key()}} & \url{https://www.patreon.com/bePatron?u=5038490} for more information.}
+}
+\value{
+\code{tbl_df}/\code{data.frame} of search results (an empty one if none found). Also
+classes as an \code{omdb} object for prettier printing
+}
+\description{
+Retrieve OMDB info by IMDB ID search
+}
+\note{
+The API's search results limit to 10.
+}

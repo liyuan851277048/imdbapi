@@ -1,0 +1,112 @@
+x1 <- -99:100
+z1 <- rnorm(200,0,2)
+eta <- x1+z1
+p1 <- exp(eta)/(1+exp(eta))
+y  <- rbinom(100,1,p1)
+
+#####
+x1 = rnorm(1000)           # some continuous variables 
+z = 1 + 2*x1         # linear combination with a bias
+pr = 1/(1+exp(-z))         # pass through an inv-logit function
+y = rbinom(1000,1,pr)      # bernoulli response variable
+
+ df = data.frame(y=y,x1=x1)
+ glm.sol=glm( y~x1,data=df,family="binomial")
+ d<-seq(0, 5, len=1000)
+ pre<-predict(glm.sol, data.frame(x = d))
+ p<-exp(pre)/(1+exp(pre))
+ plot(d,p)
+######
+ n <- 10
+ beta0 <- -1.6
+ beta1 <- 0.03
+ x <- runif(n=n, min=18, max=60)
+ pi_x <- exp(beta0 + beta1 * x) / (1 + exp(beta0 + beta1 * x))
+ y <- rbinom(n=length(x), size=1, prob=pi_x)
+ data <- data.frame(x, pi_x, y)
+ names(data) <- c("age", "pi", "y")
+ print(data)
+ 
+ 
+ ####
+ intercept <- 0
+ beta <- 0.5
+ xtest <- rnorm(1000,1,1)
+ linpred <- intercept + (xtest * beta)
+ prob <- exp(linpred)/(1 + exp(linpred))
+ runis <- runif(1000,0,1)
+ ytest <- ifelse(runis < prob,1,0)
+ 
+ #####
+ 
+x <- rnorm(1000)
+beta <- 1
+p <- 1/(1+exp(-beta*x))
+o <- order(x)
+plot( x[o], p[o], ylim=c(0,1), type="l")
+y <- rbinom(1000, 1, prob=p)
+model <- glm(y ~ x , family=binomial)
+summary(model)
+
+ 
+B <- 1000 # number of simulation replications
+coefs <- matrix(0, B, 2)
+for (i in 1:B) {
+       coefs[i, ] <- coef(glm(rbinom(1000,1,prob=p) ~ x, 
+                               family=binomial))
+    }
+hist( coefs[,1])
+hist(coefs[,2])
+plot(coefs)
+ 
+
+#########
+x   <- rnorm(10000)
+b0h <- numeric(1000)
+b1h <- numeric(1000)
+
+for(i in 1:1000){
+  eps <- rlogis(10000)
+  eta <- 1+2*x+eps
+  y   <-numeric(10000)
+  y   <- ifelse (eta>0,1,0)
+  
+  m      <- glm(y~x,family=binomial)
+  b0h[i] <- coef(m)[1]
+  b1h[i] <- coef(m)[2]
+}
+
+mean(b0h)
+mean(b1h)
+hist(b0h)
+hist(b1h)
+
+########
+c = c(rep(0:1,each=400),rep(0,200))
+x1 = rnorm(1000)
+z1 = rnorm(1000,0,2)
+z2 = rnorm(1000,0,10)
+lp = x1 + (c==1)*z1+(c==0)*z2
+link_lp = exp(lp)/(1 + exp(lp))
+y = (runif(1000) < link_lp) 
+
+
+log.int = glm(y~as.factor(c)*x, family=binomial)
+summary(log.int)
+mycols = c("red","blue")
+plot(log.int$fitted.values ~ x, col=mycols[c+1])
+
+
+#############
+fixed <- ~ 1 + act + diff
+fixed_param <- c(2, 0.5, 0.3)
+cov_param <- list(dist_fun = c('rnorm', 'rnorm'),
+                  var_type = c("single", "single"),
+                  opts = list(list(mean = 0, sd = 4),
+                              list(mean = 0, sd = 3)))
+n <- 150
+
+temp_single <- sim_glm(fixed = fixed, fixed_param = fixed_param, 
+                       cov_param = cov_param, 
+                       n = n, data_str = "single", outcome_type = 'logistic')
+print(temp_single, n = 5)

@@ -1,0 +1,72 @@
+g <- function(x){
+  return(exp(x)/(exp(x)+1))}
+#real
+set.seed(1111)
+n <- 100
+T <- 10
+xreal <- matrix(rnorm(n*T),n,T)
+U <- sample(c("A", "B"), size = n, replace = TRUE, prob = c(0.6, 0.4))
+Ath <- U %in% c("A")
+#####################simulations 
+choice <- rbinom(n,1,.6);
+z <- choice*rnorm(n,mean = 0, sd = 2)+(1-choice)*rnorm(n,mean = 0, sd = 10)
+z <- matrix(rep(z,10),n,T)
+p <- g(xreal+z)
+y <- matrix(0,n,T) 
+for (i in 1:n) {y[i,]=rbinom(T, 1, prob=p[i,])}
+## 
+TS <- 100
+pi1 <- numeric (TS)
+beta1 <- rep(1,TS)
+beta2 <- rep(1,TS)
+sigma1 <- numeric (TS)
+sigma2 <- numeric (TS)
+zmean <- numeric (TS)
+#给定初值
+beta1[1]=1
+beta2[1]=1
+sigma1[1]=1
+sigma2[1]=6
+pi1[1]=0.7
+#抽样
+for(t in 1:(TS-1)){
+  U <- matrix(0,100,500);Z <- matrix(0,100,500)
+  U[,1] <- rbinom(n,1,pi1[t]);Z[,1] <- rnorm(n)#初始化
+  #gibbs
+  for(i in 1:100){
+    for(k in 2:500){
+      p1 <- g(beta1[t]*xreal[i,]+Z[i,k-1])#1:10 个x对应的第一组概率
+      p2 <- g(beta2[t]*xreal[i,]+Z[i,k-1])#第二组
+      p_foru_1=pi1[t]*prod((p1)^y[i,]*(1-p1)^(1-y[i,]))
+      p_foru_2=(1-pi1[t])*prod((p2)^y[i,]*(1-p2)^(1-y[i,]))
+      p_forU1=p_foru_1/(p_foru_1+p_foru_2)
+      U[i,k]=rbinom(1,1,p_forU1)
+      if(U[i,k]==1){
+        znew=rnorm(1,0,sqrt(sigma1[t]))
+        pnew <- g(beta1[t]*xreal[i,]+znew)
+        Ac_up=prod((pnew)^y[i,]*(1-pnew)^(1-y[i,]))
+        Ac_down=prod((p1)^y[i,]*(1-p1)^(1-y[i,]))
+        A=min(1,Ac_up/Ac_down)
+        if(runif(1)<A){Z[i,k] <- znew}else{Z[i,k] <- Z[i,k-1]}
+      }else{
+        znew=rnorm(1,0,sqrt(sigma2[t]))
+        pnew <- g(beta2[t]*xreal[i,]+znew)
+        Ac_up <- prod((pnew)^y[i,]*(1-pnew)^(1-y[i,]))
+        Ac_down <- prod((p2)^y[i,]*(1-p2)^(1-y[i,]))
+        (A=min(1,Ac_up/Ac_down))
+        if(runif(1)<A){Z[i,k] <- znew}else{Z[i,k] <- Z[i,k-1]}
+      }
+    }#k
+    }#i,U-100*500,Z-100*500
+  Utail=U[,101:500]
+  Ztail=Z[,101:500]
+  pi1[t+1]=sum(Utail) /40000
+  zmean[t+1]=mean(Ztail)
+  
+  sigma1[t+1]=sum(Utail*Ztail^2)/sum(Utail)
+  sigma2[t+1]=sum((1-Utail)*Ztail^2)/sum(1-Utail)
+  
+    }#t
+plot(pi1)
+plot(sigma1)
+plot(sigma2)

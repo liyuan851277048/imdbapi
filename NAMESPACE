@@ -1,0 +1,16 @@
+
+
+export(find_by_id)
+export(find_by_title)
+export(get_actors)
+export(get_countries)
+export(get_directors)
+export(get_genres)
+export(get_writers)
+export(omdb_api_key)
+export(search_by_title)
+import(dplyr)
+import(httr)
+importFrom(stringr,str_pad)
+importFrom(stringr,str_split)
+importFrom(stringr,str_wrap)

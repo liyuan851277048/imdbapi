@@ -1,0 +1,9 @@
+{
+    "path" : "~/imdbapi/man",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
